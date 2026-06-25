@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pet Weight Loss Planning · PSU Vet</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.1.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg:#ffffff;--bg2:#f6f6f4;--bg3:#efefeb;
+  --text:#1a1a18;--text2:#6b6b66;--text3:#9b9b96;
+  --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+  --radius:10px;--radius-sm:6px;
+  --green:#1D9E75;--green-dk:#085041;--green-lt:#E1F5EE;
+  --orange:#C96B1A;--red:#A32D2D;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1c1c1a;--bg2:#272725;--bg3:#2e2e2b;
+    --text:#f0f0ec;--text2:#a0a09a;--text3:#6a6a65;
+    --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.22);
+    --green-lt:#0F4035;--green-dk:#9FE1CB;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;padding:1.5rem 1rem 3rem}
+.app{max-width:760px;margin:0 auto}
+
+/* Header */
+.hdr{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1rem;display:flex;align-items:flex-start;gap:1rem}
+.hdr-icon{width:48px;height:48px;background:var(--green-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-icon i{font-size:22px;color:var(--green)}
+.hdr-t{font-size:17px;font-weight:600;margin-bottom:2px}
+.hdr-s{font-size:13px;color:var(--text2);margin-bottom:4px}
+.hdr-c{font-size:11px;color:var(--text3)}
+
+/* Cards */
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1rem}
+.card-tip{border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0}
+.sec-hdr{display:flex;align-items:center;gap:8px;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:0.5px solid var(--border)}
+.sec-hdr>i{font-size:18px;color:var(--green)}
+.sec-title{font-size:15px;font-weight:600}
+.sec-sub{font-size:11px;color:var(--text2);margin-left:auto}
+
+/* Grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:520px){.g2,.g3{grid-template-columns:1fr}}
+.f{display:flex;flex-direction:column;gap:5px}
+.f label{font-size:12px;color:var(--text2);font-weight:500}
+.f .hint{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Inputs */
+input[type=text],input[type=number],input[type=date],select{
+  width:100%;padding:8px 10px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);
+  background:var(--bg);color:var(--text);font-size:13px;outline:none;
+  -webkit-appearance:none;appearance:none;
+}
+input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,0.15)}
+
+/* BCS buttons */
+.bcs-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.bcs-b{padding:5px 14px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:transparent;cursor:pointer;font-size:13px;color:var(--text);transition:all 0.12s}
+.bcs-b.sel{background:var(--green);border-color:var(--green);color:#fff}
+.bcs-b:hover:not(.sel){background:var(--bg2)}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:0.5rem}
+.metric{background:var(--bg2);border-radius:var(--radius-sm);padding:0.75rem 1rem}
+.ml{font-size:11px;color:var(--text2);margin-bottom:4px}
+.mv{font-size:19px;font-weight:600;line-height:1.2}
+.mu{font-size:11px;color:var(--text2)}
+.metric.acc .mv{color:var(--green)}
+
+/* Duration table */
+.dur-grid{border:0.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-top:0.5rem}
+.dur-row{display:grid;grid-template-columns:55% 1fr 1fr;border-bottom:0.5px solid var(--border)}
+.dur-row:last-child{border-bottom:none}
+.dur-row.head{background:var(--bg2)}
+.dur-head{padding:8px 12px;font-size:11px;font-weight:600;color:var(--text2)}
+.dur-label{padding:10px 12px;font-size:12px;color:var(--text2);background:var(--bg2);display:flex;align-items:center}
+.dur-cell{padding:10px 12px;font-size:13px;text-align:center;display:flex;align-items:center;justify-content:center}
+.dur-cell.g{color:var(--green);font-weight:600;font-size:15px}
+.dur-row.span2 .dur-cell{grid-column:2/4}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:7px 10px;background:var(--bg2);color:var(--text2);font-weight:500;border-bottom:0.5px solid var(--border);font-size:11px}
+td{padding:7px 10px;border-bottom:0.5px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+
+/* Badges */
+.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:var(--radius-sm);font-weight:500;white-space:nowrap}
+.ok{background:#EAF3DE;color:#3B6D11}.slow{background:#FAEEDA;color:#854F0B}.fast{background:#FCEBEB;color:#A32D2D}.na{background:var(--bg2);color:var(--text2)}
+
+/* Tips */
+.block-tip{font-size:12px;color:var(--text2);background:var(--bg2);padding:8px 12px;border-left:2px solid var(--green);margin-top:0.75rem}
+.ref-box{font-size:12px;color:var(--text2);background:var(--bg2);padding:6px 10px;border-radius:var(--radius-sm);margin-top:8px;display:inline-flex;align-items:center;gap:6px}
+
+/* Buttons */
+.add-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:13px;cursor:pointer;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:transparent;color:var(--text);width:fit-content}
+.add-btn:hover{background:var(--bg2)}
+.del-b{background:transparent;border:none;cursor:pointer;color:var(--text2);padding:3px;border-radius:4px;line-height:1}
+.del-b:hover{color:var(--red)}
+
+/* Log input row */
+.log-add{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:1rem}
+@media(max-width:520px){.log-add{grid-template-columns:1fr}}
+.empty{font-size:13px;color:var(--text2);text-align:center;padding:1.5rem}
+.ovx{overflow-x:auto}
+
+/* Recommendations */
+.rec-list{list-style:none;display:flex;flex-direction:column;gap:14px;padding:0}
+.rec-item{display:flex;gap:12px;align-items:flex-start}
+.rec-text{font-size:13px;line-height:1.7}
+
+/* ── Subject ID bar ── */
+.sid-bar{background:var(--green-lt);border:0.5px solid rgba(29,158,117,0.3);border-radius:var(--radius);padding:1rem 1.5rem;margin-bottom:1rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px}
+.sid-label{font-size:12px;color:var(--green-dk);font-weight:600;margin-bottom:4px}
+.sid-val{font-size:20px;font-weight:700;color:var(--green);letter-spacing:0.05em;font-family:monospace}
+.sid-actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;border:0.5px solid transparent;font-weight:500;transition:all 0.12s;white-space:nowrap}
+.btn-green{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-green:hover{background:var(--green-dk)}
+.btn-outline{background:transparent;border-color:var(--border2);color:var(--text)}
+.btn-outline:hover{background:var(--bg2)}
+.btn-pdf{background:#D93025;color:#fff;border-color:#D93025}
+.btn-pdf:hover{background:#b0261d}
+
+/* Search row */
+.search-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.search-row .f{flex:1;min-width:160px}
+
+/* Chart */
+.chart-wrap{position:relative;height:280px;margin-top:0.75rem}
+
+
+code{font-family:monospace;font-size:11px;background:var(--bg3);padding:2px 5px;border-radius:3px}
+
+/* Toast */
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a1a18;color:#fff;padding:10px 18px;border-radius:var(--radius-sm);font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999}
+#toast.show{opacity:1}
+
+/* Status chip */
+.status-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
+.chip-ok{background:#EAF3DE;color:#3B6D11}.chip-err{background:#FCEBEB;color:#A32D2D}.chip-info{background:#E8F0FE;color:#1A5FA8}
+
+@media print{
+  .sid-actions,.log-add,.del-b,.btn-pdf,.add-btn{display:none!important}
+  body{background:#fff;padding:0.5rem}
+  .card{box-shadow:none;border:0.5px solid #ddd}
+}
+</style>
+</head>
+<body>
+<div class="app" id="appRoot">
+
+<!-- ══ HEADER ══ -->
+<div class="hdr">
+  <div class="hdr-icon"><i class="ti ti-stethoscope"></i></div>
+  <div>
+    <div class="hdr-t">แบบฟอร์มบันทึกการลดน้ำหนักสัตว์เลี้ยง</div>
+    <div class="hdr-s">Pet Weight Loss Planning Form</div>
+    <div class="hdr-c">พัฒนาโดย คณะสัตวแพทยศาสตร์ มหาวิทยาลัยสงขลานครินทร์</div>
+  </div>
+</div>
+
+<!-- ══ HN BAR ══ -->
+<div class="sid-bar">
+  <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;width:100%">
+    <div class="f" style="flex:1;min-width:180px;max-width:280px">
+      <div class="sid-label">HN (Hospital Number)</div>
+      <input type="text" id="hnInput" placeholder="เช่น 001234" style="font-size:15px;font-weight:600;font-family:monospace;letter-spacing:0.05em;border-color:rgba(29,158,117,0.4);background:rgba(255,255,255,0.7)" oninput="onHNInput()">
+    </div>
+    <button class="btn btn-outline" onclick="toggleSearch()" style="white-space:nowrap"><i class="ti ti-search"></i> ค้นหาเคสจาก HN</button>
+  </div>
+</div>
+
+<!-- Search row (hidden by default) -->
+<div id="searchRow" class="card" style="display:none;padding:1rem 1.5rem">
+  <div class="sec-hdr" style="margin-bottom:0.75rem">
+    <i class="ti ti-search"></i>
+    <span class="sec-title">ค้นหา / โหลดเคสจาก Google Sheets</span>
+  </div>
+  <div class="search-row">
+    <div class="f"><label>HN (Hospital Number)</label><input type="text" id="searchSID" placeholder="เช่น 001234"></div>
+    <button class="btn btn-green" onclick="loadFromSheet()"><i class="ti ti-download"></i> โหลดข้อมูล</button>
+    <button class="btn btn-outline" onclick="toggleSearch()">ยกเลิก</button>
+  </div>
+  <div id="searchStatus" style="margin-top:8px"></div>
+  <input type="hidden" id="webhookUrl">
+</div>
+
+<!-- ══ PATIENT INFO ══ -->
+<div class="card">
+  <div class="sec-hdr">
+    <i class="ti ti-clipboard-heart"></i>
+    <span class="sec-title">ข้อมูลสัตว์เลี้ยง · Patient Info</span>
+  </div>
+  <div class="g2" style="margin-bottom:12px">
+    <div class="f"><label>HN · Hospital Number</label><input type="text" id="hnDisplay" placeholder="เช่น 001234" readonly style="background:var(--bg2);color:var(--text2);font-family:monospace;font-weight:600"></div>
+    <div class="f"><label>วันที่ตรวจ · Date</label><input type="date" id="eDate"></div>
+  </div>
+  <div class="g2">
+    <div class="f"><label>ชื่อสัตว์เลี้ยง · Pet Name</label><input type="text" id="petName" placeholder="e.g., Miaw"></div>
+    <div class="f"><label>ประเภท · Species</label>
+      <select id="species">
+        <option value="cat">แมว · Cat</option>
+        <option value="dog">สุนัข · Dog</option>
+      </select>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="f">
+      <label>น้ำหนักปัจจุบัน · Current Weight (kg)</label>
+      <input type="number" id="curWt" placeholder="e.g., 8.0" step="0.1" min="0.5" max="100">
+    </div>
+    <div class="f">
+      <label>Body Condition Score (BCS/9)</label>
+      <div class="bcs-row">
+        <button class="bcs-b" onclick="setBCS(6)">6</button>
+        <button class="bcs-b" onclick="setBCS(7)">7</button>
+        <button class="bcs-b" onclick="setBCS(8)">8</button>
+        <button class="bcs-b" onclick="setBCS(9)">9</button>
+        <button class="bcs-b" onclick="setBCS(10)">&gt;9</button>
+      </div>
+      <div class="hint">ค่าปกติ = 4–5 · Normal BCS = 4–5</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BODY ANALYSIS ══ -->
+<div class="card" id="bodyCard" style="display:none">
+  <div class="sec-hdr">
+    <i class="ti ti-chart-pie-2"></i>
+    <span class="sec-title">การวิเคราะห์ร่างกาย · Body Analysis</span>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="ml">Body Fat %</div><div class="mv" id="mFat">—</div><div class="mu">% (range)</div></div>
+    <div class="metric"><div class="ml">เกินน้ำหนัก · Overweight %</div><div class="mv" id="mOW">—</div><div class="mu">% (range)</div></div>
+    <div class="metric acc"><div class="ml">น้ำหนักเป้าหมาย · Ideal Weight</div><div class="mv" id="mTgt">—</div><div class="mu">kg (range)</div></div>
+    <div class="metric"><div class="ml">น้ำหนักที่ต้องลด · To Lose</div><div class="mv" id="mLose">—</div><div class="mu">kg (range)</div></div>
+  </div>
+</div>
+
+<!-- ══ PLAN PARAMETERS ══ -->
+<div class="card" id="paramsCard" style="display:none">
+  <div class="sec-hdr">
+    <i class="ti ti-adjustments-horizontal"></i>
+    <span class="sec-title">ข้อกำหนดแผน · Plan Parameters</span>
+  </div>
+  <div class="g2">
+    <div class="f">
+      <label>เป้าหมายการลด · Monthly Loss Rate (%/month)</label>
+      <input type="number" id="lossRate" value="2" step="0.5" min="0.5" max="7" oninput="recalc()">
+      <div class="hint" id="rateHint"></div>
+      <div class="ref-box"><i class="ti ti-info-circle" style="font-size:14px;color:var(--green)"></i><span id="refText"></span></div>
+    </div>
+    <div class="f">
+      <label>สัดส่วนพลังงาน · Energy Ratio (% RER)</label>
+      <input type="number" id="perRER" value="70" step="5" min="60" max="100" oninput="recalc()">
+      <div class="hint">แนะนำ 70–80% RER · Recommended 70–80%</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WEIGHT LOSS PLAN TABLE ══ -->
+<div class="card" id="planCard" style="display:none">
+  <div class="sec-hdr">
+    <i class="ti ti-calendar-stats"></i>
+    <span class="sec-title">วางแผนการลดน้ำหนัก · Weight Loss Plan</span>
+  </div>
+  <div class="dur-grid">
+    <div class="dur-row head">
+      <div class="dur-head">รายการ · Item</div>
+      <div class="dur-head" style="text-align:center">Min</div>
+      <div class="dur-head" style="text-align:center">Max</div>
+    </div>
+    <div class="dur-row">
+      <div class="dur-label">น้ำหนักเป้าหมาย · Target weight (kg)</div>
+      <div class="dur-cell" id="dTgtH">—</div>
+      <div class="dur-cell" id="dTgtL">—</div>
+    </div>
+    <div class="dur-row">
+      <div class="dur-label">น้ำหนักที่ต้องลด · Weight to lose (kg)</div>
+      <div class="dur-cell" id="dLossL">—</div>
+      <div class="dur-cell" id="dLossH">—</div>
+    </div>
+    <div class="dur-row">
+      <div class="dur-label">ระยะเวลาโดยประมาณ · Est. duration (เดือน)</div>
+      <div class="dur-cell g" id="dMoL">—</div>
+      <div class="dur-cell g" id="dMoH">—</div>
+    </div>
+    <div class="dur-row">
+      <div class="dur-label">ระยะเวลาโดยประมาณ · Est. duration (สัปดาห์)</div>
+      <div class="dur-cell g" id="dWkL">—</div>
+      <div class="dur-cell g" id="dWkH">—</div>
+    </div>
+    <div class="dur-row span2">
+      <div class="dur-label">พลังงาน/วัน ระยะเริ่มต้น · Starting daily kcal</div>
+      <div class="dur-cell" id="dKcal" style="font-weight:600">—</div>
+    </div>
+  </div>
+  <div class="block-tip" id="planTip"></div>
+</div>
+
+<!-- ══ WEIGHT TREND CHART ══ -->
+<div class="card" id="chartCard" style="display:none">
+  <div class="sec-hdr">
+    <i class="ti ti-chart-line"></i>
+    <span class="sec-title">แผนภูมิแนวโน้มน้ำหนัก · Weight Trend Chart</span>
+    <span class="sec-sub">แสดงช่วง Min–Max ของแผนพร้อมข้อมูลจริง</span>
+  </div>
+  <div class="chart-wrap">
+    <canvas id="wtChart"></canvas>
+  </div>
+  <div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--text2);flex-wrap:wrap">
+    <span><span style="display:inline-block;width:24px;height:3px;background:#1D9E75;vertical-align:middle;border-radius:2px;margin-right:4px"></span>แผน 1</span>
+    <span><span style="display:inline-block;width:24px;height:3px;background:#6BA3BE;vertical-align:middle;border-radius:2px;margin-right:4px"></span>แผน 2</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#C96B1A;border-radius:50%;vertical-align:middle;margin-right:4px"></span>น้ำหนักจริง · Actual weight</span>
+  </div>
+</div>
+
+<!-- ══ FEEDING CALCULATOR ══ -->
+<div class="card" id="feedCard" style="display:none">
+  <div class="sec-hdr">
+    <i class="ti ti-bowl"></i>
+    <span class="sec-title">เครื่องมือคำนวณมื้ออาหาร · Feeding Calculator</span>
+    <span class="sec-sub">ระยะเริ่มต้น</span>
+  </div>
+  <div class="g2">
+    <div class="f">
+      <label>พลังงานของอาหาร · Food Energy (kcal per 100 g)</label>
+      <input type="number" id="foodKcal" value="362.5" step="0.5" min="100" max="600" oninput="recalc()">
+    </div>
+    <div class="f">
+      <label>จำนวนมื้อต่อวัน · Meals per Day</label>
+      <select id="meals" onchange="recalc()">
+        <option value="2" selected>2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+  </div>
+  <div class="ovx">
+    <table><thead><tr>
+      <th>พลังงาน/วัน · kcal/day</th>
+      <th>อาหารรวม/วัน · Total g/day</th>
+      <th>อาหาร/มื้อ · g per meal</th>
+    </tr></thead>
+    <tbody id="feedBody"></tbody></table>
+  </div>
+  <div class="block-tip">แนะนำให้ปรับปริมาณอาหารใหม่ทุก 4–8 สัปดาห์ ตามน้ำหนักจริงที่ชั่งได้</div>
+</div>
+
+<!-- ══ TREAT CALCULATOR ══ -->
+<div class="card" id="treatCard" style="display:none">
+  <div class="sec-hdr">
+    <i class="ti ti-candy"></i>
+    <span class="sec-title">คำนวณปริมาณขนม · Treat Calculator</span>
+    <span class="sec-sub">≤10% of daily kcal</span>
+  </div>
+  <div class="g2">
+    <div class="f">
+      <label>พลังงานของขนม/ชิ้น · Treat Energy (kcal/piece)</label>
+      <input type="number" id="treatKcal" value="10" step="0.5" min="1" max="200" oninput="recalcTreat()">
+    </div>
+    <div class="metric" style="margin-top:auto">
+      <div class="ml">ขนมที่ให้ได้/วัน · Treats allowed/day</div>
+      <div class="mv acc" id="treatCount" style="color:var(--green)">—</div>
+      <div class="mu">ชิ้น · pieces</div>
+    </div>
+  </div>
+  <div class="block-tip" id="treatTip"></div>
+</div>
+
+<!-- ══ PROGRESS LOG ══ -->
+<div class="card">
+  <div class="sec-hdr">
+    <i class="ti ti-chart-line"></i>
+    <span class="sec-title">บันทึก Weight Loss · Progress Log</span>
+  </div>
+  <div class="log-add">
+    <div class="f"><label>วันที่ · Date</label><input type="date" id="logDate"></div>
+    <div class="f"><label>น้ำหนักจริง · Actual Weight (kg)</label><input type="number" id="logWt" step="0.1" placeholder="e.g., 7.8"></div>
+    <div class="f"><label style="visibility:hidden">x</label>
+      <button class="add-btn" onclick="addLog()"><i class="ti ti-plus"></i>บันทึก · Add</button>
+    </div>
+  </div>
+  <div class="ovx">
+    <table><thead><tr>
+      <th>#</th><th>วันที่</th><th>น้ำหนัก · kg</th>
+      <th>wk</th><th>%loss/wk</th><th>%loss/mo</th>
+      <th>เป้า · kg</th><th>ผล</th><th></th>
+    </tr></thead>
+    <tbody id="logBody"></tbody></table>
+  </div>
+  <div class="empty" id="logEmpty">กรอกข้อมูลและเพิ่มการบันทึกน้ำหนัก · Enter patient info then add weight entries above</div>
+</div>
+
+<!-- ══ RECOMMENDATIONS ══ -->
+<div class="card card-tip">
+  <div class="sec-hdr">
+    <i class="ti ti-alert-circle"></i>
+    <span class="sec-title">คำแนะนำเพิ่มเติม · Additional Recommendations</span>
+  </div>
+  <ul class="rec-list">
+    <li class="rec-item">
+      <i class="ti ti-run" style="font-size:20px;color:var(--green);flex-shrink:0;margin-top:2px"></i>
+      <span class="rec-text">เพิ่มการเคลื่อนไหวร่างกายหรือการออกกำลังกายอย่างเหมาะสมกับชนิดสัตว์เลี้ยง สภาพร่างกายและโรคประจำตัว</span>
+    </li>
+    <li class="rec-item">
+      <i class="ti ti-stethoscope" style="font-size:20px;color:var(--orange);flex-shrink:0;margin-top:2px"></i>
+      <span class="rec-text">หากสัตว์มีน้ำหนักลดลงมากเกินกว่าเกณฑ์ที่แนะนำ เช่น <strong>สุนัขลดมากกว่า 5% ต่อเดือน</strong> หรือ <strong>แมวลดมากกว่า 3% ต่อเดือน</strong> ควรปรึกษาสัตวแพทย์ทันที</span>
+    </li>
+    <li class="rec-item">
+      <i class="ti ti-heart-rate-monitor" style="font-size:20px;color:#185FA5;flex-shrink:0;margin-top:2px"></i>
+      <span class="rec-text">การลดน้ำหนักในสัตว์ที่กำลังเจริญเติบโต สัตว์สูงอายุ หรือสัตว์ที่มีโรคประจำตัว ควรอยู่ภายใต้คำแนะนำของสัตวแพทย์</span>
+    </li>
+  </ul>
+</div>
+
+<!-- ══ BOTTOM ACTION BAR ══ -->
+<div class="card" style="background:var(--bg2);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;padding:1rem 1.5rem">
+  <button class="btn btn-outline" onclick="saveToSheet()" style="font-size:14px;padding:10px 20px;white-space:nowrap"><i class="ti ti-device-floppy"></i> บันทึกข้อมูล</button>
+  <button class="btn btn-pdf" onclick="exportPDF()" style="font-size:14px;padding:10px 20px;white-space:nowrap"><i class="ti ti-file-type-pdf"></i> ดาวน์โหลด PDF</button>
+</div>
+
+</div><!-- /app -->
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Apps Script help modal -->
+<div id="scriptModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;padding:1rem;overflow:auto">
+  <div style="max-width:600px;margin:2rem auto;background:var(--bg);border-radius:var(--radius);padding:1.5rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <strong>Apps Script สำหรับ Google Sheets</strong>
+      <button onclick="document.getElementById('scriptModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text2)">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:1rem">1. เปิด Google Sheets ใหม่ → Extensions → Apps Script → วางโค้ดด้านล่าง → Deploy → Web App (ตั้ง Execute as: Me, Access: Anyone)<br>2. Copy URL ที่ได้มาวางใน Webhook URL ด้านบน</p>
+    <pre id="scriptCode" style="background:var(--bg2);padding:12px;border-radius:var(--radius-sm);font-size:11px;overflow:auto;max-height:300px;white-space:pre-wrap;color:var(--text)"></pre>
+    <button class="btn btn-green" style="margin-top:12px" onclick="copyScript()"><i class="ti ti-copy"></i> คัดลอก Script</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA & CONSTANTS
+// ══════════════════════════════════════════
+const BCS_DATA={6:{fL:25,fH:29,oL:10,oH:20},7:{fL:30,fH:34,oL:20,oH:30},8:{fL:35,fH:39,oL:30,oH:40},9:{fL:40,fH:45,oL:40,oH:50},10:{fL:46,fH:65,oL:50,oH:70}};
+let selBCS=null,startKcal=0,logArr=[],vc=0,wtChartInst=null;
+let ibwLow=0,ibwHigh=0,durMonLow=0,durMonHigh=0;
+function getHN(){return(document.getElementById('hnInput').value||'').trim();}
+
+// ══════════════════════════════════════════
+// HN MANAGEMENT
+// ══════════════════════════════════════════
+function onHNInput(){
+  // sync HN input bar → readonly display inside patient card
+  const hn=getHN();
+  const disp=document.getElementById('hnDisplay');
+  if(disp)disp.value=hn;
+}
+function toggleSearch(){
+  const r=document.getElementById('searchRow');
+  r.style.display=r.style.display==='none'?'':'none';
+}
+
+
+// ══════════════════════════════════════════
+// PHYSICS
+// ══════════════════════════════════════════
+function rer(w){return 70*Math.pow(w,0.75);}
+function setBCS(v){
+  selBCS=v;
+  document.querySelectorAll('.bcs-b').forEach(b=>{
+    const m=(v===10&&b.textContent==='>9')||(v!==10&&+b.textContent===v);
+    b.classList.toggle('sel',m);
+  });
+  recalc();
+}
+
+// ══════════════════════════════════════════
+// MAIN RECALC
+// ══════════════════════════════════════════
+function recalc(){
+  const wt=parseFloat(document.getElementById('curWt').value);
+  const hide=['bodyCard','paramsCard','planCard','chartCard','feedCard','treatCard'];
+  const bcs=BCS_DATA[selBCS];
+  if(!wt||!selBCS||!bcs){hide.forEach(id=>document.getElementById(id).style.display='none');return;}
+  const sp=document.getElementById('species').value;
+  const isCat=sp==='cat';
+
+  document.getElementById('mFat').textContent=bcs.fL+'–'+bcs.fH;
+  document.getElementById('mOW').textContent=bcs.oL+'–'+bcs.oH;
+
+  ibwLow=wt*(100-bcs.fH)/80;
+  ibwHigh=wt*(100-bcs.fL)/80;
+  document.getElementById('mTgt').textContent=ibwLow.toFixed(1)+'–'+ibwHigh.toFixed(1);
+
+  const wtLoseLow=wt-ibwHigh;
+  const wtLoseHigh=wt-ibwLow;
+  document.getElementById('mLose').textContent=wtLoseLow.toFixed(1)+'–'+wtLoseHigh.toFixed(1);
+
+  document.getElementById('rateHint').textContent=isCat?'แมว: แนะนำ 1–3.5%/เดือน':'สุนัข: แนะนำ 3–5%/เดือน';
+  document.getElementById('refText').textContent=isCat
+    ?'เป้าหมายการลดน้ำหนักในแมว: 1–3.5% ต่อเดือน (แนะนำ 2% ต่อเดือน)'
+    :'เป้าหมายการลดน้ำหนักในสุนัข: 3–5% ต่อเดือน (แนะนำ 3–4% ต่อเดือน)';
+
+  const rate=(parseFloat(document.getElementById('lossRate').value)||2)/100;
+  const rerPct=(parseFloat(document.getElementById('perRER').value)||70)/100;
+
+  durMonLow=wtLoseLow/(rate*wt);
+  durMonHigh=wtLoseHigh/(rate*wt);
+  const durWkLow=durMonLow*4.33;
+  const durWkHigh=durMonHigh*4.33;
+
+  startKcal=Math.round(rer(wt)*rerPct);
+
+  document.getElementById('dTgtH').textContent=ibwHigh.toFixed(1)+' kg';
+  document.getElementById('dTgtL').textContent=ibwLow.toFixed(1)+' kg';
+  document.getElementById('dLossL').textContent=wtLoseLow.toFixed(2)+' kg';
+  document.getElementById('dLossH').textContent=wtLoseHigh.toFixed(2)+' kg';
+  document.getElementById('dMoL').textContent=durMonLow.toFixed(2)+' เดือน';
+  document.getElementById('dMoH').textContent=durMonHigh.toFixed(2)+' เดือน';
+  document.getElementById('dWkL').textContent=durWkLow.toFixed(1)+' สัปดาห์';
+  document.getElementById('dWkH').textContent=durWkHigh.toFixed(1)+' สัปดาห์';
+  document.getElementById('dKcal').textContent=startKcal+' kcal/วัน';
+  document.getElementById('planTip').textContent=
+    'สูตรคำนวณ: ระยะเวลา = น้ำหนักที่ต้องลด ÷ (อัตราลด%/เดือน × น้ำหนักเริ่มต้น) · เช่น '+
+    wtLoseLow.toFixed(2)+' ÷ ('+(rate*100).toFixed(1)+'% × '+wt+' kg) = '+durMonLow.toFixed(2)+' เดือน';
+
+  const fk=parseFloat(document.getElementById('foodKcal').value)||362.5;
+  const ml=parseInt(document.getElementById('meals').value)||2;
+  const tg=startKcal/fk*100;
+  document.getElementById('feedBody').innerHTML=
+    '<tr><td><strong>'+startKcal+'</strong> kcal</td><td>'+Math.round(tg)+' g</td><td><strong>'+Math.round(tg/ml)+' g</strong></td></tr>';
+
+  hide.forEach(id=>document.getElementById(id).style.display='');
+  recalcTreat();
+  renderLog();
+  renderChart(wt,ibwLow,ibwHigh,durMonHigh,rate);
+}
+
+// ══════════════════════════════════════════
+// CHART  (linear x-axis = เดือน จริง)
+// ══════════════════════════════════════════
+function renderChart(startWt,ibwL,ibwH,maxMo,rate){
+  const lossPerMon   = rate * startWt;
+  const moToReachFast = (startWt - ibwH) / lossPerMon;
+  const moToReachSlow = (startWt - ibwL) / lossPerMon;
+
+  const startDate = document.getElementById('eDate').value;
+  const base      = startDate ? new Date(startDate) : new Date();
+
+  // คำนวณว่า log จริงไปถึงเดือนที่เท่าไร
+  let maxLogMo = 0;
+  if(logArr.length){
+    const lastDay = (new Date(logArr[logArr.length-1].date) - base) / 864e5;
+    maxLogMo = lastDay / 30.44;
+  }
+  const totalMo = Math.ceil(Math.max(moToReachSlow + 2, maxLogMo + 1));
+  const step    = 0.25; // ทุก 1/4 เดือน → เส้น smooth
+
+  // ── Plan lines (x = เดือนจากวันเริ่ม, y = น้ำหนัก) ──
+  const fastLine = [];
+  const slowLine = [];
+  for(let m = 0; m <= totalMo; m += step){
+    const wtFast = m < moToReachFast ? startWt - lossPerMon*m : ibwH;
+    const wtSlow = m < moToReachSlow ? startWt - lossPerMon*m : ibwL;
+    fastLine.push({ x: +m.toFixed(3), y: +wtFast.toFixed(2) });
+    slowLine.push({ x: +m.toFixed(3), y: +wtSlow.toFixed(2) });
+  }
+
+  // ── Actual log points: x = เดือนจริงจากวันเริ่ม ──
+  const logPoints = logArr.map(e => {
+    const days = (new Date(e.date) - base) / 864e5;
+    const mo   = days / 30.44;
+    return { x: +mo.toFixed(3), y: +e.wt };
+  });
+
+  const ctx = document.getElementById('wtChart').getContext('2d');
+  if(wtChartInst){ wtChartInst.destroy(); }
+
+  const isDark    = window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
+  const textColor = isDark ? '#a0a09a' : '#6b6b66';
+
+  // สร้าง tick labels: เดือน 0,1,2,...  → แสดงชื่อเดือนปฏิทิน
+  const tickCallback = val => {
+    if(!Number.isInteger(Math.round(val*4)/4) || Math.abs(val - Math.round(val)) > 0.01) return '';
+    const mo = Math.round(val);
+    const d  = new Date(base);
+    d.setDate(d.getDate() + Math.round(mo * 30.44));
+    return 'เดือน ' + mo + ' (' + d.toLocaleDateString('th-TH',{month:'short',year:'2-digit'}) + ')';
+  };
+
+  wtChartInst = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'แผน 1',
+          data: fastLine,
+          borderColor: '#1D9E75',
+          backgroundColor: 'rgba(29,158,117,0.08)',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          showLine: true,
+          tension: 0,
+          fill: false,
+        },
+        {
+          label: 'แผน 2',
+          data: slowLine,
+          borderColor: '#6BA3BE',
+          backgroundColor: 'rgba(107,163,190,0.06)',
+          borderWidth: 2,
+          pointRadius: 0,
+          showLine: true,
+          tension: 0,
+          borderDash: [6,3],
+          fill: false,
+        },
+        {
+          label: 'น้ำหนักจริง',
+          data: logPoints,
+          borderColor: '#C96B1A',
+          backgroundColor: '#C96B1A',
+          borderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          showLine: logPoints.length > 1,
+          tension: 0,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: false, axis: 'x' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: isDark ? '#272725' : '#fff',
+          titleColor: textColor,
+          bodyColor: isDark ? '#f0f0ec' : '#1a1a18',
+          borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)',
+          borderWidth: 1,
+          padding: 10,
+          callbacks: {
+            title: items => {
+              const mo = items[0].parsed.x;
+              const d  = new Date(base);
+              d.setDate(d.getDate() + Math.round(mo * 30.44));
+              return 'เดือนที่ ' + mo.toFixed(1) + '  (' + d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}) + ')';
+            },
+            label: item => ' ' + item.dataset.label + ': ' + item.parsed.y.toFixed(2) + ' kg'
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          grid: { color: gridColor },
+          ticks: {
+            color: textColor,
+            font: { size: 10 },
+            maxRotation: 0,
+            stepSize: 1,
+            callback: tickCallback
+          },
+          title: { display: true, text: 'ระยะเวลา (เดือน)', color: textColor, font: { size: 11 } }
+        },
+        y: {
+          grid: { color: gridColor },
+          ticks: { color: textColor, font: { size: 11 }, callback: v => parseFloat(v).toFixed(2) + ' kg' },
+          title: { display: true, text: 'น้ำหนัก (kg)', color: textColor, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// TREAT
+// ══════════════════════════════════════════
+function recalcTreat(){
+  if(!startKcal)return;
+  const allow=startKcal*0.10;
+  const tkcal=parseFloat(document.getElementById('treatKcal').value)||10;
+  const cnt=allow/tkcal;
+  document.getElementById('treatCount').textContent=cnt.toFixed(1);
+  document.getElementById('treatTip').textContent=
+    'ขนมที่ให้ได้ '+allow.toFixed(1)+' kcal/วัน (10% ของ '+startKcal+' kcal) → สูงสุด '+Math.floor(cnt)+' ชิ้น/วัน';
+}
+
+// ══════════════════════════════════════════
+// LOG
+// ══════════════════════════════════════════
+function addLog(){
+  const d=document.getElementById('logDate').value,w=document.getElementById('logWt').value;
+  if(!d||!w){alert('กรุณากรอกวันที่และน้ำหนัก');return;}
+  vc++;
+  logArr.push({id:vc,date:d,wt:parseFloat(w)});
+  logArr.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  document.getElementById('logDate').value='';
+  document.getElementById('logWt').value='';
+  renderLog();
+  // Re-render chart with new actual points
+  const wt=parseFloat(document.getElementById('curWt').value);
+  const rate=(parseFloat(document.getElementById('lossRate').value)||2)/100;
+  if(wt&&selBCS)renderChart(wt,ibwLow,ibwHigh,durMonHigh,rate);
+}
+function delLog(id){logArr=logArr.filter(e=>e.id!==id);renderLog();
+  const wt=parseFloat(document.getElementById('curWt').value);
+  const rate=(parseFloat(document.getElementById('lossRate').value)||2)/100;
+  if(wt&&selBCS)renderChart(wt,ibwLow,ibwHigh,durMonHigh,rate);
+}
+function interp(pctMo,sp){
+  const min=sp==='cat'?1:3,max=sp==='cat'?3.5:5;
+  if(pctMo===null)return{t:'—',c:'na'};
+  if(pctMo<=0)return{t:'น้ำหนักไม่ลด',c:'slow'};
+  if(pctMo<min)return{t:'ลดช้า · Slow',c:'slow'};
+  if(pctMo>max)return{t:'ลดเร็ว · Fast',c:'fast'};
+  return{t:'ตามเกณฑ์ · On target',c:'ok'};
+}
+function renderLog(){
+  const body=document.getElementById('logBody'),empty=document.getElementById('logEmpty');
+  const sp=document.getElementById('species').value;
+  const initWt=parseFloat(document.getElementById('curWt').value)||null;
+  const rate=(parseFloat(document.getElementById('lossRate').value)||2)/100;
+  if(!logArr.length){body.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  const baseDate=logArr[0]?new Date(logArr[0].date):null;
+  const baseWt=initWt||logArr[0]?.wt;
+  body.innerHTML=logArr.map((e,i)=>{
+    const prev=i===0?null:logArr[i-1];
+    let dur='—',lWk='—',lMo='—',ip={t:'—',c:'na'};
+    if(prev){
+      const days=(new Date(e.date)-new Date(prev.date))/(864e5);
+      const wks=days/7,mos=days/30.44;
+      const lost=prev.wt-e.wt;
+      const pWk=wks>0?lost/prev.wt*100/wks:0,pMo=mos>0?lost/prev.wt*100/mos:0;
+      dur=wks.toFixed(1);lWk=pWk.toFixed(2);lMo=pMo.toFixed(2);ip=interp(pMo,sp);
+    }
+    let tgt='—';
+    if(baseDate&&baseWt){
+      const mos=(new Date(e.date)-baseDate)/(864e5*30.44);
+      tgt=(baseWt-(rate*baseWt*mos)).toFixed(1);
+    }
+    return'<tr><td>'+(i+1)+'</td><td>'+e.date+'</td><td><strong>'+e.wt.toFixed(1)+'</strong></td><td>'+dur+'</td><td>'+lWk+'%</td><td>'+lMo+'%</td><td>'+tgt+'</td><td><span class="badge '+ip.c+'">'+ip.t+'</span></td><td><button class="del-b" onclick="delLog('+e.id+')" aria-label="Remove">✕</button></td></tr>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// COLLECT FORM DATA
+// ══════════════════════════════════════════
+function collectData(){
+  return{
+    sid:getHN(),
+    hn:getHN(),
+    date:document.getElementById('eDate').value,
+    petName:document.getElementById('petName').value,
+    species:document.getElementById('species').value,
+    curWt:document.getElementById('curWt').value,
+    bcs:selBCS,
+    lossRate:document.getElementById('lossRate').value,
+    perRER:document.getElementById('perRER').value,
+    foodKcal:document.getElementById('foodKcal').value,
+    meals:document.getElementById('meals').value,
+    treatKcal:document.getElementById('treatKcal').value,
+    ibwLow:ibwLow.toFixed(2),
+    ibwHigh:ibwHigh.toFixed(2),
+    startKcal,
+    durMonLow:durMonLow.toFixed(2),
+    durMonHigh:durMonHigh.toFixed(2),
+    log:JSON.stringify(logArr),
+    savedAt:new Date().toISOString()
+  };
+}
+function loadData(d){
+  // รองรับทั้ง lowercase (จาก Google Sheets) และ camelCase (จาก collectData)
+  const g = (k1, k2) => d[k1] || d[k2] || '';
+  const hn = g('hn','sid');
+  if(hn){
+    document.getElementById('hnInput').value=hn;
+    const disp=document.getElementById('hnDisplay');
+    if(disp)disp.value=hn;
+  }
+  const date     = g('date','date');
+  const petName  = g('petname','petName');
+  const species  = g('species','species');
+  const curWt    = g('curwt','curWt');
+  const bcs      = g('bcs','bcs');
+  const lossRate = g('lossrate','lossRate');
+  const perRER   = g('perrer','perRER');
+  const foodKcal = g('foodkcal','foodKcal');
+  const meals    = g('meals','meals');
+  const treatKcal= g('treatkcal','treatKcal');
+  const log      = g('log','log');
+
+  // set ค่าทุก field ก่อน แล้วค่อย recalc ครั้งเดียวท้ายสุด
+  if(date)     document.getElementById('eDate').value=date;
+  if(petName)  document.getElementById('petName').value=petName;
+  if(species)  document.getElementById('species').value=species;
+  if(curWt)    document.getElementById('curWt').value=curWt;
+  if(lossRate) document.getElementById('lossRate').value=lossRate;
+  if(perRER)   document.getElementById('perRER').value=perRER;
+  if(foodKcal) document.getElementById('foodKcal').value=foodKcal;
+  if(meals)    document.getElementById('meals').value=meals;
+  if(treatKcal)document.getElementById('treatKcal').value=treatKcal;
+  if(log){try{logArr=JSON.parse(log);vc=logArr.reduce((m,e)=>Math.max(m,e.id),0);}catch(e){logArr=[];vc=0;}}
+
+  // set BCS — แปลงเป็น int และ map 10 → >9
+  if(bcs){
+    const bcsNum = parseInt(bcs);
+    // BCS_DATA มี key 6,7,8,9,10 เท่านั้น
+    const validBCS = [6,7,8,9,10];
+    const mapped = validBCS.includes(bcsNum) ? bcsNum : null;
+    if(mapped){
+      selBCS = mapped;
+      document.querySelectorAll('.bcs-b').forEach(b=>{
+        const m=(mapped===10&&b.textContent==='>9')||(mapped!==10&&+b.textContent===mapped);
+        b.classList.toggle('sel',m);
+      });
+    }
+  }
+  // recalc ครั้งเดียว หลัง set ทุกค่าเสร็จ
+  recalc();
+}
+
+// ══════════════════════════════════════════
+// GOOGLE SHEETS SAVE / LOAD
+// ══════════════════════════════════════════
+function getWebhook(){
+  return document.getElementById('webhookUrl').value.trim()||localStorage.getItem('psu_wl_webhook')||'';
+}
+async function saveToSheet(){
+  const hn=getHN();
+  if(!hn){alert('กรุณากรอก HN ก่อนบันทึก');document.getElementById('hnInput').focus();return;}
+  const url=getWebhook();
+  if(!url){showToast('⚠ กรุณาตั้งค่า Webhook URL ก่อน');toggleSearch();return;}
+  const data=collectData();
+  showToast('⏳ กำลังบันทึก…');
+  try{
+    await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',data})});
+    showToast('✓ บันทึกสำเร็จ · Saved (HN: '+hn+')');
+  }catch(e){
+    showToast('✗ บันทึกไม่สำเร็จ: '+e.message);
+  }
+}
+async function loadFromSheet(){
+  const sid=document.getElementById('searchSID').value.trim();
+  if(!sid){alert('กรุณากรอก HN');return;}
+  const url=getWebhook();
+  if(!url){showToast('⚠ กรุณาตั้งค่า Webhook URL ก่อน');return;}
+  document.getElementById('searchStatus').innerHTML='<span class="status-chip chip-info"><i class="ti ti-loader" style="font-size:12px"></i> กำลังโหลด…</span>';
+  try{
+    const resp=await fetch(url+'?action=load&sid='+encodeURIComponent(sid),{method:'GET'});
+    const json=await resp.json();
+    if(json.success&&json.data){
+      loadData(json.data);
+      document.getElementById('searchStatus').innerHTML='<span class="status-chip chip-ok">✓ โหลดสำเร็จ: '+sid+'</span>';
+      toggleSearch();
+      showToast('✓ โหลดข้อมูล '+sid+' สำเร็จ');
+    }else{
+      document.getElementById('searchStatus').innerHTML='<span class="status-chip chip-err">✗ ไม่พบ: '+sid+'</span>';
+    }
+  }catch(e){
+    document.getElementById('searchStatus').innerHTML='<span class="status-chip chip-err">✗ Error: '+e.message+'</span>';
+    showToast('✗ โหลดไม่สำเร็จ: '+e.message);
+  }
+}
+
+// ══════════════════════════════════════════
+// PDF EXPORT
+// ══════════════════════════════════════════
+async function exportPDF(){
+  const hn=getHN();
+  if(!hn){alert('กรุณากรอก HN ก่อน');return;}
+  const url=getWebhook();
+  showToast('⏳ กำลังสร้าง PDF…');
+  const el=document.getElementById('appRoot');
+  try{
+    const canvas=await html2canvas(el,{scale:1.5,useCORS:true,backgroundColor:'#efefeb'});
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const pageW=pdf.internal.pageSize.getWidth();
+    const pageH=pdf.internal.pageSize.getHeight();
+    const imgW=pageW-10;
+    const imgH=canvas.height*imgW/canvas.width;
+    let y=5,remaining=imgH,srcY=0;
+    const ratio=canvas.height/imgH;
+    while(remaining>0){
+      const sliceH=Math.min(pageH-10,remaining);
+      const sliceCanvas=document.createElement('canvas');
+      sliceCanvas.width=canvas.width;
+      sliceCanvas.height=sliceH*ratio;
+      sliceCanvas.getContext('2d').drawImage(canvas,0,srcY,canvas.width,sliceH*ratio,0,0,canvas.width,sliceH*ratio);
+      pdf.addImage(sliceCanvas.toDataURL('image/jpeg',0.92),'JPEG',5,y,imgW,sliceH);
+      remaining-=sliceH; srcY+=sliceH*ratio;
+      if(remaining>0){pdf.addPage();y=5;}
+    }
+    const fname='HN'+(getHN()||'WeightLoss')+'_'+(document.getElementById('petName').value||'pet')+'.pdf';
+    pdf.save(fname);
+    if(url){
+      const data=collectData();
+      await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',data})});
+      showToast('✓ ดาวน์โหลด PDF + บันทึก Sheet สำเร็จ');
+    }else{
+      showToast('✓ ดาวน์โหลด PDF สำเร็จ');
+    }
+  }catch(err){
+    showToast('✗ Error: '+err.message);
+  }
+}
+
+// ══════════════════════════════════════════
+// APPS SCRIPT TEMPLATE
+// ══════════════════════════════════════════
+const APPS_SCRIPT_CODE=`// ═══════════════════════════════════════════
+// PSU Pet Weight Loss — Google Apps Script
+// Deploy: Extensions > Apps Script > Deploy > Web App
+// Execute as: Me | Access: Anyone
+// ═══════════════════════════════════════════
+
+const SHEET_NAME = 'WeightLoss';
+
+function doGet(e) {
+  const action = e.parameter.action;
+  if (action === 'load') {
+    return loadRecord(e.parameter.sid);
+  }
+  return ContentService.createTextOutput(JSON.stringify({success:false,msg:'Use POST to save'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    const body = JSON.parse(e.postData.contents);
+    if (body.action === 'save') {
+      return saveRecord(body.data);
+    }
+  } catch(err) {
+    return ok({success:false,msg:err.toString()});
+  }
+}
+
+function getSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_NAME);
+    sh.appendRow(['SID','Date','PetName','Species','CurWt','BCS','LossRate','PerRER',
+                  'FoodKcal','Meals','TreatKcal','IBW_Low','IBW_High',
+                  'StartKcal','DurMo_Low','DurMo_High','Log','SavedAt']);
+  }
+  return sh;
+}
+
+function saveRecord(data) {
+  const sh = getSheet();
+  const rows = sh.getDataRange().getValues();
+  const sidCol = 0;
+  // Find existing row with same SID
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][sidCol] === data.sid) {
+      sh.getRange(i+1, 1, 1, 18).setValues([[
+        data.sid, data.date, data.petName, data.species, data.curWt, data.bcs,
+        data.lossRate, data.perRER, data.foodKcal, data.meals, data.treatKcal,
+        data.ibwLow, data.ibwHigh, data.startKcal, data.durMonLow, data.durMonHigh,
+        data.log, data.savedAt
+      ]]);
+      return ok({success:true,action:'updated',sid:data.sid});
+    }
+  }
+  // New row
+  sh.appendRow([
+    data.sid, data.date, data.petName, data.species, data.curWt, data.bcs,
+    data.lossRate, data.perRER, data.foodKcal, data.meals, data.treatKcal,
+    data.ibwLow, data.ibwHigh, data.startKcal, data.durMonLow, data.durMonHigh,
+    data.log, data.savedAt
+  ]);
+  return ok({success:true,action:'created',sid:data.sid});
+}
+
+function loadRecord(sid) {
+  const sh = getSheet();
+  const rows = sh.getDataRange().getValues();
+  const headers = rows[0];
+  for (let i = rows.length-1; i >= 1; i--) {
+    if (rows[i][0] === sid) {
+      const obj = {};
+      headers.forEach((h,j) => obj[h.toLowerCase()] = String(rows[i][j]));
+      return ok({success:true,data:obj});
+    }
+  }
+  return ok({success:false,msg:'Not found: '+sid});
+}
+
+function ok(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+
+function showScriptHelp(){
+  document.getElementById('scriptCode').textContent=APPS_SCRIPT_CODE;
+  document.getElementById('scriptModal').style.display='';
+}
+function copyScript(){
+  navigator.clipboard.writeText(APPS_SCRIPT_CODE).then(()=>showToast('✓ คัดลอก Script แล้ว'));
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('eDate').value=today;
+document.getElementById('logDate').value=today;
+// Load saved webhook
+const savedUrl=localStorage.getItem('psu_wl_webhook');
+if(savedUrl)document.getElementById('webhookUrl').value=savedUrl;
+
+
+['curWt','species','lossRate','perRER','foodKcal','meals'].forEach(id=>{
+  const el=document.getElementById(id);
+  el&&el.addEventListener('input',recalc);
+  el&&el.addEventListener('change',recalc);
+});
+</script>
+</body>
+</html>
