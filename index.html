@@ -837,8 +837,9 @@ function loadData(d){
 // ══════════════════════════════════════════
 // GOOGLE SHEETS SAVE / LOAD
 // ══════════════════════════════════════════
+const DEFAULT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxU-B3V6Xu08bnkcRuro7owEXqGdYuqovcGRzncOmiGVxx1yJuaRRFU5ovUbzHZ6y7wBA/exec';
 function getWebhook(){
-  return document.getElementById('webhookUrl').value.trim()||localStorage.getItem('psu_wl_webhook')||'';
+  return DEFAULT_WEBHOOK;
 }
 async function saveToSheet(){
   const hn=getHN();
